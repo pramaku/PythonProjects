@@ -4,6 +4,9 @@ user configuration settings for various email programs (pymail/mailtools version
 email scripts get their server names and other email config options from this
 module: change me to reflect your server names and mail preferences;
 """
+#root directory for password and other files.
+ROOT_DIR = r'C:\Users\Pradeep\Desktop\Python_Email_Prog'
+
 #------------------------------------------------------------------------------
 # (required for load, delete: all) POP3 email server machine, user
 #------------------------------------------------------------------------------
@@ -32,24 +35,24 @@ mysignature = ('Thanks,\n' '--Pradeep Kumar (Python Programmer)')
 # an empty string to force programs to ask (in a console, or GUI);
 #------------------------------------------------------------------------------
 smtpuser = 'pandillapradeepkumargmail.com' # per your ISP
-smtppasswdfile = r'c:\Users\Pradeep\Desktop\Python_Email_Prog\smtp_password.txt' # set to '' to be asked
+smtppasswdfile = ROOT_DIR + r'smtp_password.txt' # set to '' to be asked
 
 #------------------------------------------------------------------------------
 # (optional: mailtools) name of local one-line text file with your pop
 # password; if empty or file cannot be read, pswd is requested when first
 # connecting; pswd not encrypted: leave this empty on shared machines;
 #------------------------------------------------------------------------------
-poppasswdfile = r'C:\Users\Pradeep\Desktop\Python_Email_Prog\pop_password.txt' # set to '' to be asked
+poppasswdfile = ROOT_DIR + r'pop_password.txt' # set to '' to be asked
 
 #------------------------------------------------------------------------------
 # (required: mailtools) local file where sent messages are saved by some clients;
 #------------------------------------------------------------------------------
-sentmailfile = r'C:\Users\Pradeep\Desktop\Python_Email_Prog\sent_mail.txt' # . means in current working dir
+sentmailfile = ROOT_DIR + r'sent_mail.txt' # . means in current working dir
 
 #------------------------------------------------------------------------------
 # (required: pymail, pymail2) local file where pymail saves pop mail on request;
 #------------------------------------------------------------------------------
-savemailfile = r'C:\Users\Pradeep\Desktop\Python_Email_Prog\save_mail.txt' # not used in PyMailGUI: dialog
+savemailfile = ROOT_DIR + r'save_mail.txt' # not used in PyMailGUI: dialog
 
 #------------------------------------------------------------------------------
 # (required: pymail, mailtools) fetchEncoding is the Unicode encoding used to
