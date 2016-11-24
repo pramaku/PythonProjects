@@ -5,4 +5,4 @@ Set of python projects created as part of reading the following Python Books:
 
 2) Programming Python, 4th Edition - Mark Lutz
 
-Refer the script file docuementation for details on using the script.
+Refer the script file documentation for details on using the script.
