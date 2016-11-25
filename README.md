@@ -1,6 +1,8 @@
 # PythonProjects
-Set of python projects created as part of reading Python Books:                                                                           
-1) Learning Python, 5th Edition                                                                                                           
-2) Programming Python, 4th Edition
+Set of python projects created as part of reading the following Python Books:
 
-Refer to each file comments to know how to execute the scripts.
+1) Learning Python, 5th Edition  - Mark Lutz
+
+2) Programming Python, 4th Edition - Mark Lutz
+
+Refer the script file documentation for details on using the script.
