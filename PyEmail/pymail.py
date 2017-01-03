@@ -16,6 +16,7 @@ from email.message import Message
 
 fetchEncoding = mailconfig.fetchEncoding
 
+
 def decodeToUnicode(messageBytes, fetchEncoding=fetchEncoding):
     """
     decode fetched bytes to str Unicode string for display or parsing;
@@ -24,12 +25,14 @@ def decodeToUnicode(messageBytes, fetchEncoding=fetchEncoding):
     """
     return [line.decode(fetchEncoding) for line in messageBytes]
 
+
 def splitAddrs(field):
     """
     split address list on commas, allowing for commas in name parts
     """
     pairs = email.utils.getaddresses([field])                   # [(name,addr)]
     return [email.utils.formataddr(pair) for pair in pairs]     # [name <addr>]
+
 
 def inputMessage():
     From = input('From?').strip()
@@ -44,6 +47,7 @@ def inputMessage():
             break
         text += line
     return (From, To, Subj, text)
+
 
 def sendMessage():
     """
@@ -69,6 +73,7 @@ def sendMessage():
         if failed:
             print('Failed to send email:', failed)
 
+
 def connect(server, user, passwd):
     """
     Connects to the given POP server
@@ -84,7 +89,8 @@ def connect(server, user, passwd):
     except:
         print('Error in connecting to', server, sys.exc_info()[1])
         return None
-    
+
+
 def loadMessages(server, user, passwd, loadFrom=1):
     """
     loads the emails into memory
@@ -94,12 +100,12 @@ def loadMessages(server, user, passwd, loadFrom=1):
     conn = connect(server, user, passwd)
     if conn:
         try:
-            #print(conn.list())                  #to avoid huge output
+            # print(conn.list())                  #to avoid huge output
             (msgCount, msgBytes) = conn.stat()
             print('There are', msgCount, 'mail messages in', msgBytes, 'bytes')
             print('Retrieving...')
 
-            #e-mail's could be huge, for time being just load last 5 emails
+            # e-mail's could be huge, for time being just load last 5 emails
             if msgCount > 5:
                 loadFrom = msgCount - 5
             msgList = []
@@ -109,10 +115,11 @@ def loadMessages(server, user, passwd, loadFrom=1):
                 msgList.append('\n'.join(msg))
         finally:
             conn.quit()
-        assert len(msgList) == (msgCount - loadFrom) + 1    #check if all emails are loaded
+        assert len(msgList) == (msgCount - loadFrom) + 1    # check if all emails are loaded
         return msgList
     else:
         return None
+
 
 def deleteMessages(server, user, passwd, toDelete, verify=True):
     """
@@ -129,6 +136,7 @@ def deleteMessages(server, user, passwd, toDelete, verify=True):
                 conn.dele(msgNum)
         else:
             print('Error deleting email:', sys.exc_info()[1])
+
 
 def showIndex(msgList):
     """
@@ -148,6 +156,7 @@ def showIndex(msgList):
         if count % 5 == 0:
             input('[Press Enter key]')
 
+
 def showMessage(msgNum, msgList):
     """
     display the emil content for the given msgnum in the list
@@ -164,6 +173,7 @@ def showMessage(msgNum, msgList):
     else:
         print('Bad message number:', msgNum)
 
+
 def saveMessage(msgNum, mailFile, msgList):
     """
     save the emil contents to the given file
@@ -173,6 +183,7 @@ def saveMessage(msgNum, mailFile, msgList):
         savefile.write('\n' + msgList[msgNum - 1] + '-'*80 + '\n')
     else:
         print('Bad message number:', msgNum)
+
 
 def msgnum(command):
     try:
@@ -190,6 +201,7 @@ m    - compose and send a new mail message
 q    - quit pymail
 ?    - display this help text
 """
+
 
 def interact(msgList, mailfile):
     showIndex(msgList)
@@ -235,7 +247,7 @@ def interact(msgList, mailfile):
             print('What? -- type "?" for commands help')
     return toDelete
 
-#self testing
+# self testing
 if __name__ == '__main__':
     import getpass
     import mailconfig
@@ -253,5 +265,5 @@ if __name__ == '__main__':
     else:
         print('Error in loading messages, cannot proceed')
 
-    #user quit
+    # user quit
     print('Bye')
