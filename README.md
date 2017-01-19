@@ -8,6 +8,6 @@ Set of python projects created in the process of learning python:
 Refer the script file documentation for details on using the script.
 
 
-Thanks to Mark Lutz (http://www.oreilly.com/pub/au/446) for his amazing python material.
+Thanks to [Mark Lutz](http://www.oreilly.com/pub/au/446) for his amazing python material.
 
 
