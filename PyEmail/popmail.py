@@ -1,10 +1,17 @@
 #!/usr/bin/python
 """
-use the Python POP3 mail interface module to view your POP email account messages;
-this is just a simple listing--see pymail.py for a client with more user interaction features, and smtpmail.py for a script which sends mail;
-POP is used to retrieve mail, and runs on a socket using port number 110 on the server machine, but Python's poplib hides all protocol details;
+use the Python POP3 mail interface module to view your POP email account
+messages
+
+this is just a simple listing--see pymail.py for a client with more user
+interaction features, and smtpmail.py for a script which sends mail
+
+POP is used to retrieve mail, and runs on a socket using port number 110 on
+the server machine, but Python's poplib hides all protocol details;
 to send mail, use the smtplib module (or os.popen('mail...')).
-see also: imaplib module for IMAP alternative, PyMailGUI/PyMailCGI for more features;
+
+see also: imaplib module for IMAP alternative, PyMailGUI/PyMailCGI for more
+features
 """
 
 import poplib
@@ -12,8 +19,8 @@ import getpass
 import sys
 import mailconfig
 
-mailserver   = mailconfig.popservername
-mailuser     = mailconfig.popusername
+mailserver = mailconfig.popservername
+mailuser = mailconfig.popusername
 mailpassword = getpass.getpass('Password for %s?' % mailuser.split('@')[0])
 
 print('Connecting....')
@@ -24,8 +31,8 @@ server.pass_(mailpassword)
 try:
     print(server.getwelcome())
     msgCount, msgBytes = server.stat()
-    print('There are', msgCount, 'mail messages in', msgBytes, 'bytes')
-    #print(server.list())
+    print('There are ', msgCount, ' mail messages in', msgBytes, 'bytes')
+    # print(server.list())
     print('-' * 80)
     input('[Press Enter key]')
 
@@ -35,7 +42,7 @@ try:
             print(line.decode())                    # retrieve, print all mail
         print('-' * 80)                             # mail text is bytes in 3.x
         break                                       # display one email
-except:
+except Exception:
     print('Error receiving e-mail:', sys.exc_info()[1])
 finally:
     server.quit()

@@ -2,11 +2,10 @@
 """
 same as tutor5.py, but uses the formMock to get the inputs instead from cgi
 """
-import cgi
-import sys
 from formMockup import formMockup
 
-form = formMockup(name='Bob', shoesize='Small', language=['Python', 'C++', 'HTML'], comment='ni, Ni, NI')
+form = formMockup(name='Bob', shoesize='Small',
+                  language=['Python', 'C++', 'HTML'], comment='ni, Ni, NI')
 
 print('Content-type: text/html\n')
 
@@ -22,11 +21,11 @@ html = """
 <P>%(comment)s</P>
 <HR>"""
 
-#fill the placeholders with keynames in the below dict.
+# fill the placeholders with keynames in the below dict.
 data = {}
 
 for field in ('name', 'shoesize', 'job', 'language', 'comment'):
-    if not field in form:
+    if field not in form:
         data[field] = 'unknown'
     else:
         if not isinstance(form[field], list):

@@ -20,8 +20,9 @@ fetchEncoding = mailconfig.fetchEncoding
 def decodeToUnicode(messageBytes, fetchEncoding=fetchEncoding):
     """
     decode fetched bytes to str Unicode string for display or parsing;
-    use global setting (or by platform default, hdrs inspection, intelligent guess);
-    in Python 3.2/3.3, this step may not be required: if so, return message intact;
+    use global setting (or by platform default, hdrs inspection, guess);
+    in Python 3.2/3.3, this step may not be required: if so, return message
+    intact;
     """
     return [line.decode(fetchEncoding) for line in messageBytes]
 
@@ -36,8 +37,8 @@ def splitAddrs(field):
 
 def inputMessage():
     From = input('From?').strip()
-    To   = input('To?').strip()
-    To   = splitAddrs(To)
+    To = input('To?').strip()
+    To = splitAddrs(To)
     Subj = input('Subject?').strip()
     print('Type message text, end with line="."')
     text = ''
@@ -67,7 +68,7 @@ def sendMessage():
         username = mailconfig.popusername
         conn.login(username, input('Password for %s:' % username))
         failed = conn.sendmail(From, To, str(msg))
-    except:
+    except Exception:
         print('Error in sending email:', sys.exc_info()[1])
     else:
         if failed:
@@ -86,7 +87,7 @@ def connect(server, user, passwd):
         conn.pass_(passwd)
         print(conn.getwelcome())
         return conn
-    except:
+    except Exception:
         print('Error in connecting to', server, sys.exc_info()[1])
         return None
 
@@ -115,7 +116,8 @@ def loadMessages(server, user, passwd, loadFrom=1):
                 msgList.append('\n'.join(msg))
         finally:
             conn.quit()
-        assert len(msgList) == (msgCount - loadFrom) + 1    # check if all emails are loaded
+        # check if all emails are loaded
+        assert len(msgList) == (msgCount - loadFrom) + 1
         return msgList
     else:
         return None
@@ -142,9 +144,10 @@ def showIndex(msgList):
     """
     display message headers for the given messages
     """
-    count = 0                                                  # show some mail headers
+    count = 0                                         # show some mail headers
     for msgtext in msgList:
-        msghdrs = Parser().parsestr(msgtext, headersonly=True) # expects str in 3.1
+        # expects str in 3.1
+        msghdrs = Parser().parsestr(msgtext, headersonly=True)
         count += 1
         print('%d:\t%d bytes' % (count, len(msgtext)))
 
@@ -188,8 +191,9 @@ def saveMessage(msgNum, mailFile, msgList):
 def msgnum(command):
     try:
         return int(command.split()[-1])
-    except:
+    except Exception:
         return None
+
 
 helpText = """
 Available commands:
@@ -214,11 +218,11 @@ def interact(msgList, mailfile):
         if not command:
             command = '*'
 
-        if command == 'q':          #quit
+        if command == 'q':          # quit
             break
-        elif command == 'i':        #index
+        elif command == 'i':        # index
             showIndex(msgList)
-        elif command[0] == 'l':     #list
+        elif command[0] == 'l':     # list
             if len(command) == 1:
                 for i in range(1, len(msgList) + 1):
                     showMessage(i, msgList)
@@ -230,16 +234,17 @@ def interact(msgList, mailfile):
                     saveMessage(i, mailfile, msgList)
             else:
                 saveMessage(msgnum(command), mailfile, msgList)
-        elif command[0] == 'd':     #delete
+        elif command[0] == 'd':     # delete
             if len(command) == 1:
                 toDelete = list(range(1, len(msgList)+1))
             else:
                 delNum = msgnum(command)
-                if ((1 <= delNum <= len(msgList)) and (delNum not in toDelete)):
+                if ((1 <= delNum <= len(msgList)) and
+                   (delNum not in toDelete)):
                     toDelete.append(toDelete)
                 else:
                     print('Bad message number')
-        elif command[0] == 'm':      #send email
+        elif command[0] == 'm':      # send email
             sendMessage()
         elif command == '?':
             print(helpText)
@@ -247,14 +252,15 @@ def interact(msgList, mailfile):
             print('What? -- type "?" for commands help')
     return toDelete
 
+
 # self testing
 if __name__ == '__main__':
     import getpass
     import mailconfig
     mailserver = mailconfig.popservername
-    mailuser   = mailconfig.popusername
-    mailfile   = mailconfig.savemailfile
-    mailpswd   = getpass.getpass('Password for %s?' % mailserver)
+    mailuser = mailconfig.popusername
+    mailfile = mailconfig.savemailfile
+    mailpswd = getpass.getpass('Password for %s?' % mailserver)
     print('[Pymail email client]')
 
     msgList = loadMessages(mailserver, mailuser, mailpswd)

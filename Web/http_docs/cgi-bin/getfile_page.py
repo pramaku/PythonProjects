@@ -1,7 +1,8 @@
 #!/usr/bin/python
 """
-Generate the content og getfile.html and include a drowp down with list of files
-currently lists only files in cgi-bin directory
+Generate the content og getfile.html and include a drowp down with list of
+files currently lists only files in cgi-bin directory
+
 TODO:enhance to browse the server file system to choose file.
 """
 import os
@@ -19,7 +20,8 @@ REPLY = """Content-type: text/html
             <P>
             <p><input type=submit value=Download>
         </form>
-    <hr><a href="getfile.py?filename=cgi-bin/getfile_page.py">View script code</a>
+    <hr><a href="getfile.py?filename=cgi-bin/getfile_page.py">View script code
+        </a>
     </body>
 </html>
 """

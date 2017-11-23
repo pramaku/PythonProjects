@@ -3,7 +3,6 @@
 runs on the server, reads form input, prints HTML
 """
 import cgi
-import sys
 form = cgi.FieldStorage()
 
 print('Content-type: text/html\n')
@@ -20,11 +19,11 @@ html = """
 <P>%(comment)s</P>
 <HR>"""
 
-#fill the placeholders with keynames in the below dict.
+# fill the placeholders with keynames in the below dict.
 data = {}
 
 for field in ('name', 'shoesize', 'job', 'language', 'comment'):
-    if not field in form:
+    if field not in form:
         data[field] = 'unknown'
     else:
         if not isinstance(form[field], list):

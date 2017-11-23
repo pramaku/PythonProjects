@@ -25,6 +25,7 @@ q    - quit pymail
 ?    - display this help text
 """
 
+
 def showIndex(msgList, msgSizes, chunk=5):
     count = 0
     for (msg, size) in zip(msgList, msgSizes):
@@ -85,7 +86,7 @@ def deleteMessages(toDelete, verify=True):
 def msgnum(command):
     try:
         return int(command.split()[1])
-    except:
+    except Exception:
         return -1
 
 
@@ -136,7 +137,7 @@ def interact(msgList, msgSizes, mailfile):
         elif command[0] == 'm':
             try:
                 sendMessage()
-            except:
+            except Exception:
                 print('Error - mail not sent')
 
         elif command[0] == '?':
@@ -170,6 +171,7 @@ def main():
 
     if toDelete:
         deleteMessages(toDelete)
+
 
 if __name__ == '__main__':
     main()

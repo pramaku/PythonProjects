@@ -13,14 +13,12 @@ cookies = http.cookies.SimpleCookie(cookstr)
 
 user = cookies.get('user')
 
-#create if no cookie
-if user == None:
+# create if no cookie
+if user is None:
     cookies = http.cookies.SimpleCookie(cookstr)
     cookies['user'] = 'Brian'
-    
-    #printing to stdout, this will set the cookie
+    # printing to stdout, this will set the cookie
     print(cookies)
-    
     greeting = '<p>His name shall be... %s</p>' % cookies['user'].value
 else:
     greeting = '<p>Welcome back, %s</p>' % user.value

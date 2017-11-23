@@ -9,7 +9,7 @@ print("""Content-type: text/html
 <table border=1>
 """)
 
-#create the table rows and cols here
+# create the table rows and cols here
 for i in range(5):
     print('<tr>')
     for j in range(4):

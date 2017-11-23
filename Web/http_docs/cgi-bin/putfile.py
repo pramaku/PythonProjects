@@ -2,14 +2,16 @@
 """
 extract file uploaded by HTTP from web browser;
 
-users visit putfile.html to get the upload form page, which then triggers this script on server; 
-this is very powerful, and very dangerous: you will usually want to check the filename, etc; 
+users visit putfile.html to get the upload form page, which then triggers this
+ script on server. This is very powerful, and very dangerous: you will usually
+ want to check the filename, etc;
 
-this may only work if file or dir is writable: a Unix 'chmod 777 uploads' may suffice; 
-file pathnames may arrive in client's path format: handle here;
+this may only work if file or dir is writable: a Unix 'chmod 777 uploads'
+may suffice; file pathnames may arrive in client's path format: handle here;
 
-caveat: could open output file in text mode to wite receiving platform's line ends since 
-file content always str from the cgi module, but this is a temporary solution anyhow
+caveat: could open output file in text mode to wite receiving platform's line
+ends since file content always str from the cgi module,
+but this is a temporary solution anyhow.
 --the cgi module doesn't handle binary file uploads in 3.1 at all;
 """
 
@@ -17,18 +19,18 @@ import cgi
 import os
 import sys
 
-#handle unix, win, mac clients
+# handle unix, win, mac clients
 import posixpath
 import ntpath
 import macpath
 
-#set this to True when running from command line
+# set this to True when running from command line
 debugMode = True
 
-#set to true to read the file at once
+# set to true to read the file at once
 loadtextauto = False
 
-#the directory should be writable
+# the directory should be writable
 uploaddir = './uploads'
 
 sys.stderr = sys.stdout
@@ -53,6 +55,7 @@ validResponse = response % """
 </p><hr>
 """
 
+
 def splitPath(origpath):
     for pathmodule in (posixpath, ntpath, macpath):
         basename = pathmodule.split(origpath)[1]
@@ -60,7 +63,8 @@ def splitPath(origpath):
             return basename
     return origpath
 
-#process the content and save it in file.
+
+# process the content and save it in file.
 def saveOnServer(fileInfo):
     basename = splitPath(fileInfo.filename)
     srvrname = os.path.join(uploaddir, basename)
@@ -87,20 +91,23 @@ def saveOnServer(fileInfo):
     os.chmod(srvrname, 0o666)
     return (fileText, srvrname)
 
-#starts here
+
+# starts here
 def main():
-    if not 'clientfile' in form:
+    if 'clientfile' not in form:
         print(response % ('No file received'))
     elif not form['clientfile'].filename:
-        print(html % 'Error: filename is missing')
+        print(response % 'Error: filename is missing')
     else:
         fileInfo = form['clientfile']
         try:
             fileText, serverName = saveOnServer(fileInfo)
-        except:
+        except IOError:
             errmsg = '<h2>Error</h2><p>%s<p>%s' % tuple(sys.exc_info()[:2])
             print(response % errmsg)
         else:
-            print(validResponse % (cgi.escape(fileInfo.filename), cgi.escape(serverName), cgi.escape(fileText)))
-    
+            print(validResponse % (cgi.escape(fileInfo.filename),
+                  cgi.escape(serverName), cgi.escape(fileText)))
+
+
 main()

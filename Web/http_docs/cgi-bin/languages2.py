@@ -1,12 +1,17 @@
 #!/usr/bin/python
 
 """
-generate HTML for main page dynamically from an executable Python script, not a precoded HTML file; 
-this lets us import the expected input field name and the selection table values from a common Python module file; 
-changes in either now only have to be made in one place, the Python module file;
-"""
+generate HTML for main page dynamically from an executable Python script,
+not a precoded HTML file;
 
-#create the html content.
+this lets us import the expected input field name and the selection table
+values from a common Python module file;
+
+changes in either now only have to be made in one place, the Python module file
+"""
+from languages2common import hellos, inputkey
+
+# create the html content.
 REPLY = """Content-type: text/html
 
 <body>
@@ -34,11 +39,9 @@ To see the code that generates this page and the reply, click
 </body></html>
 """
 
-from languages2common import hellos, inputkey
-
 options = []
 for lang in hellos:
     options.append('<option>' + lang)
 options = '\t' + '\n\t'.join(options)
 
-print(REPLY % (inputkey,options))
+print(REPLY % (inputkey, options))

@@ -13,11 +13,11 @@ import email.utils
 import mailconfig
 
 mailserver = mailconfig.smtpservername
-username   = mailconfig.popusername
+username = mailconfig.popusername
 
 From = input('From?').strip()
-To   = input('To?').strip()
-Tos  = To.split(';')                             #incase multiple receipt's
+To = input('To?').strip()
+Tos = To.split(';')                             # incase multiple receipt's
 Subj = input('Subject?')
 Date = email.utils.formatdate()
 
@@ -37,8 +37,8 @@ server.login(username, input('Password for %s:' % username))
 failed = server.sendmail(From, Tos, text)
 server.quit()
 
-if failed:                                           # smtplib may raise exceptions
-    print('Failed recipients:', failed)              # too, but let them pass here
+if failed:                                       # smtplib may raise exceptions
+    print('Failed recipients:', failed)          # too, but let them pass here
 else:
     print('No errors.')
 print('Bye.')

@@ -13,16 +13,18 @@ import email.utils
 from email.message import Message
 
 from .mailTool import MailTool
-from .mailTool import SilentMailTool
+
 
 class MailParser(MailTool):
     """
     methods for parsing message text, attachments.
 
-    For simple messages, the message body is always considered here to be the sole part of the mail;
+    For simple messages, the message body is always considered here to be the
+    sole part of the mail;
     For multipart messages, the parts list includes the main message text,
     as well as all attachments;
-    This allows simple messages not of type text to be handled like attachments in a UI (e.g., saved, opened);
+    This allows simple messages not of type text to be handled like attachments
+    in a UI (e.g., saved, opened);
     Message payload may also be None for some oddball part types;
     """
 
@@ -160,7 +162,7 @@ class MailParser(MailTool):
                 except (UnicodeError, LookupError):
                     pass
             else:
-                #some exception
+                # some exception
                 payload = '--Sorry: cannot decode Unicode text--'
         return payload
 
@@ -172,7 +174,7 @@ class MailParser(MailTool):
         :return: (type, decoded payload text)
         """
 
-        #try for plain text type
+        # try for plain text type
         for part in message.walk():
             type = part.get_content_type()
             if type == 'text/plain':
@@ -204,7 +206,7 @@ class MailParser(MailTool):
             decoded = []
 
             for (part, enc) in parts:
-                if enc == None:
+                if enc is None:
                     if not isinstance(part, bytes):
                         decoded += [part]
                     else:
@@ -213,7 +215,7 @@ class MailParser(MailTool):
                     decoded += [part.decode(enc)]
 
             return ' '.join(decoded)
-        except:
+        except Exception:
             return rawheader
 
     def decodeAddrHeader(self, rawheader):
@@ -229,12 +231,12 @@ class MailParser(MailTool):
             for (name, addr) in pairs:
                 try:
                     name = self.decodeHeader(name)
-                except:
+                except Exception:
                     name = None
                 joined = email.utils.formataddr(name, addr)
                 decoded.append(joined)
             return ' '.join(decoded)
-        except:
+        except Exception:
             return self.decodeHeader(rawheader)
 
     def splitAddresses(self, field):
@@ -246,7 +248,7 @@ class MailParser(MailTool):
         try:
             pairs = email.utils.getaddresses([field])
             return [email.utils.formataddr(pair) for pair in pairs]
-        except:
+        except Exception:
             return []
 
     # returned when e-mail parse fail (common error message for the class)
@@ -261,7 +263,7 @@ class MailParser(MailTool):
         """
         try:
             return email.parser.Parser().parsestr(mailtext, headersonly=True)
-        except:
+        except Exception:
             return self.errorMessage
 
     def parseMessage(self, fullText):
@@ -274,7 +276,7 @@ class MailParser(MailTool):
         """
         try:
             return email.parser.Parser().parsestr(fullText)
-        except:
+        except Exception:
             return self.errorMessage
 
     def parseMessageRaw(self, fulltext):
@@ -285,5 +287,5 @@ class MailParser(MailTool):
         """
         try:
             return email.parser.HeaderParser().parsestr(fulltext)
-        except:
+        except Exception:
             return self.errorMessage

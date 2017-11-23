@@ -8,73 +8,80 @@ import sys
 
 import mailconfig
 
-from .mailParser import MailParser             # script dir, pythonpath, changes
+from .mailParser import MailParser            # script dir, pythonpath, changes
 
 from .mailTool import MailTool
 from .mailTool import SilentMailTool
 
+
 class DeleteSynchError(Exception):
     pass
+
 
 class TopNotSupported(Exception):
     pass
 
+
 class MessageSynchError(Exception):
     pass
-    
+
+
 class MailFetcher(MailTool):
     """
-    fetch mail: connect, fetch headers+mails, delete mails, works on any machine with Python + Internet,
+    fetch mail: connect, fetch headers+mails, delete mails, works on any
+    machine with Python + Internet,
     subclass me to cache implemented with the POP protocol,
     Supporting IMAP requires new class;
     """
-    def __init__(self, popserver=None, popuser=None, poppasswd=None, hastop=True):
-        self.popServer   = popserver or mailconfig.popservername
-        self.popUser     = popuser or mailconfig.popusername
-        self.srvrHasTop  = hastop
-        self.popPassword = poppasswd  #if None, ask user before connecting.
-    
+    def __init__(self, popserver=None, popuser=None, poppasswd=None,
+                 hastop=True):
+        self.popServer = popserver or mailconfig.popservername
+        self.popUser = popuser or mailconfig.popusername
+        self.srvrHasTop = hastop
+        self.popPassword = poppasswd  # if None, ask user before connecting.
+
     def connect(self):
         self.trace('Connecting...')
         if not self.popPassword:
             self.popPassword = self.getPassword()
-        
+
         server = poplib.POP3_SSL(self.popServer)
         server.user(self.popUser)
         server.pass_(self.popPassword)
         server.trace(server.getwelcome())
         return server
-    
-    #get the encoding from the clients mailconfig(sys.path)
+
+    # get the encoding from the clients mailconfig(sys.path)
     fetchEncoding = mailconfig.fetchEncoding
-    
+
     def decodeFullText(self, messageBytes):
         """
         Decode full fetched mail text bytes to str Unicode string,
         Decoding is done at done at fetch, for later display or parsing.
         Decode with per-class or per-instance setting, or common types.
-        Encoding type could also be found from headers inspection, or intelligent guess from structure.
+        Encoding type could also be found from headers inspection, or
+        intelligent guess from structure.
         messageBytes - list of lines of message text.
         """
         text = None
-        
-        #try different encoding types
-        kinds  = [self.fetchEncoding]
+
+        # try different encoding types
+        kinds = [self.fetchEncoding]
         kinds += ['ascii', 'latin1', 'utf8']
         kinds += [sys.getdefaultencoding()]
-        
-        #remove duplicates
+
+        # remove duplicates
         kinds = list(set(kinds))
-        
+
         for encoding in kinds:
             try:
                 text = [line.decode(encoding) for line in messageBytes]
                 break
             except (UnicodeError, LookupError):
                 pass
-                
-        if text == None:
-            #encoding failed, return hdr + errmsg
+
+        if text is None:
+            # encoding failed, return hdr + errmsg
             blankline = messageBytes.index(b'')
             hdrsonly = messageBytes[:blankline]
             commons = ['ascii', 'latin1', 'utf8']
@@ -89,16 +96,17 @@ class MailFetcher(MailTool):
                     text = [line.decode() for line in hdrsonly]
                 except UnicodeError:
                     text = ['From: (sender of unknown Unicode format headers)']
-            text += ['', '--Sorry: mailtools cannot decode this mail content!--']
+            text += ['', '--Sorry: mailtools cannot \
+                          decode this mail content!--']
         return text
-        
+
     def downloadMessage(self, msgnum):
         """
         load full raw text of one mail msg, given its POP relative msgnum,
         caller must parse content, (raw msg is returned)
         """
         self.trace('load message ' + str(msgnum))
-        
+
         server = self.connect()
         try:
             resp, msglines, respz = server.retr(msgnum)
@@ -106,14 +114,14 @@ class MailFetcher(MailTool):
             server.quit()
         msglines = self.decodeFullText(msglines)
         return '\n'.join(msglines)
-        
-        
+
     def downloadAllHeaders(self, progress=None, loadfrom=1):
         """
         get sizes, raw header text only, for all or new msgs
         begins loading headers from message number 'loadfrom'
         use 'downloadMessage' to get a full msg text later.
-        'progress' is a call back function called with (count, total) for each messge.
+        'progress' is a call back function called with (count, total)
+        for each messge.
         returns: [headers text], [mail sizes], loadedfull?
         """
         if not self.srvrHasTop:
@@ -121,47 +129,48 @@ class MailFetcher(MailTool):
         else:
             self.trace('Loading headers..')
             fetchLimit = mailconfig.fetchlimit
-            server = self.connect()      #mailbox is locked now.
+            server = self.connect()      # mailbox is locked now.
             try:
                 resp, msginfos, respsz = server.list()
                 msgCount = len(msginfos)
                 msginfos = msginfos[loadfrom-1:]
                 allsizes = [int(x.split()[1]) for x in msginfos]
-                allhdrs  = []
-                
+                allhdrs = []
+
                 for msgnum in range(loadfrom, msgCount+1):
                     if progress:
                         progress(msgnum, msgCount)
                     if fetchLimit and (msgnum <= msgCount - fetchLimit):
-                        #add dummy header
+                        # add dummy header
                         hdrtext = 'Subject: --mail skipped--\n\n'
                         allhdrs.append(hdrtext)
                     else:
-                        #retr the hdr content
+                        # retr the hdr content
                         resp, hdrlines, respsz = server.top(msgnum, 0)
                         hdrlines = self.decodeFullText(hdrlines)
                         allhdrs.append('\n'.join(hdrlines))
             finally:
-                #unlock irrespective of events
+                # unlock irrespective of events
                 server.unlock()
-            #check to see if all the message hdrs are read.
+            # check to see if all the message hdrs are read.
             assert(len(allhdrs) == len(allsizes))
-            
+
             self.trace('load headers exit')
             loadedFull = True if fetchLimit else False
             return allhdrs, allsizes, loadedFull
-            
+
     def downloadAllMessages(self, progress=None, loadfrom=1):
         """
         load full message text from all all messages starting from 'loadFrom'
-        'progress' is a callback function called with (msgnum , total) for every message.
+        'progress' is a callback function called with (msgnum , total) for
+        every message.
         the message content is decoded using 'decodeFullText' method.
         returns [mails text], [mail sizes], loadedfull?
         """
         self.trace('loading full messages')
         fetchlimit = mailconfig.fetchlimit
         server = self.connect()
-        
+
         try:
             (msgCount, msgBytes) = server.stat()
             allmsgs = []
@@ -177,18 +186,19 @@ class MailFetcher(MailTool):
                     (resp, message, respsz) = server.retr(i)
                     message = self.decodeFullText(message)
                     allmsgs.append(message)
-                    allsizes.append(len(respsz))   #size differs after decoding.
+                    allsizes.append(len(respsz))   # size differ after decoding
         finally:
             server.quit()
         loadedFull = True if fetchlimit else False
         return allmsgs, allsizes, loadedFull
-    
+
     def deleteMessages(self, msgnums, progress=None):
         """
         delete messages from the inbox.
         expects that the inbox is changed in the middle
         'progess' callback method is called for each message
-        risk to use if msgnums not in sync with inbox ( use 'deleteMessagesSafely' )
+        risk to use if msgnums not in sync with inbox
+        (use 'deleteMessagesSafely' )
         """
         self.trace("deleting e-mails")
         server = self.connect()
@@ -206,11 +216,14 @@ class MailFetcher(MailTool):
         check for a match on each msg's header part before deleting;
         fails if server is not supported with 'TOP'.
 
-        use if the mail server might change the inbox since the email index was last fetched,
-        thereby changing POP relative message numbers. this can happen if email is deleted in
+        use if the mail server might change the inbox since the email index
+        was last fetched,
+        thereby changing POP relative message numbers. this can happen if email
+        is deleted in
         a different client.
 
-        'synchHdrs' must be a list of already loaded mail hdrs text,corresponding to selected 'msgnums'.
+        'synchHdrs' must be a list of already loaded mail hdrs text,
+        corresponding to selected 'msgnums'.
         raises exception if any out of synch with the email server.
 
         'progress' - callback called for each message deletion.
@@ -221,7 +234,7 @@ class MailFetcher(MailTool):
 
         self.trace('deleting mails safely')
 
-        errmsg  = 'Message %s out of synch with server.\n'
+        errmsg = 'Message %s out of synch with server.\n'
         errmsg += 'Delete terminated at this message.\n'
         errmsg += 'Mail client may require restart or reload.'
 
@@ -242,11 +255,12 @@ class MailFetcher(MailTool):
                     server.dele(msgnum)
         finally:
             server.quit()
-    
+
     def checkSyncError(self, synchHeaders):
         """
         check to see if already loaded hdrs text in 'synchHeaders' list matches
-        what is on the server, using the TOP command in POP to fetch headers text.
+        what is on the server, using the TOP command in POP to fetch headers
+        text.
 
         use this mthod if inbox can change due to deletes in other client,
         or automatic action by email server.
@@ -278,7 +292,7 @@ class MailFetcher(MailTool):
                     raise MessageSynchError(errormsg)
         finally:
             server.quit()
-    
+
     def headersMatch(self, hdrtext1, hdrtext2):
         """
         First try simple string match.
@@ -304,8 +318,10 @@ class MailFetcher(MailTool):
             return True
 
         # try mismatch by message-id headers if either has one
-        msgid1 = [line for line in split1 if line[:11].lower() == 'message-id:']
-        msgid2 = [line for line in split2 if line[:11].lower() == 'message-id:']
+        msgid1 = [line for line in split1 if
+                  line[:11].lower() == 'message-id:']
+        msgid2 = [line for line in split2 if
+                  line[:11].lower() == 'message-id:']
         if (msgid1 or msgid2) and (msgid1 != msgid2):
             self.trace('Different Message-Id')
             return False
@@ -334,11 +350,12 @@ class MailFetcher(MailTool):
         try:
             localfile = open(mailconfig.poppasswdfile)
             return localfile.readline()[:-1]
-        except:
+        except Exception:
             return self.askPopPassword()
-    
+
     def askPopPassword(self):
         assert False, 'Subclass must define method'
+
 
 class MailFetcherConsole(MailFetcher):
     def askPopPassword(self):
@@ -349,6 +366,7 @@ class MailFetcherConsole(MailFetcher):
         import getpass
         prompt = 'Password for %s on %s?' % (self.popUser, self.popServer)
         return getpass.getpass(prompt)
+
 
 class SilentMailFetcher(SilentMailTool, MailFetcher):
     """

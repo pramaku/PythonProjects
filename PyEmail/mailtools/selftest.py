@@ -4,13 +4,12 @@ script to test the mailtools package module.
 """
 
 import sys
-sys.path.append('..')
 import mailconfig
-print('using config file :', mailconfig.__file__, ' for testing')
-
 from mailtools import MailFetcherConsole
 from mailtools import MailSender, MailSenderAuthConsole
 from mailtools import MailParser
+
+print('using config file :', mailconfig.__file__, ' for testing')
 
 # use below if selftest.py is inside the mailtools directory
 # from mailFetcher import MailFetcherConsole
@@ -34,13 +33,13 @@ def send():
         sender = MailSenderAuthConsole(tracesize=5000)
 
     # send the e-mail
-    sender.sendMessage(From = mailconfig.myaddress,
-                        To = [mailconfig.myaddress],
-                        Subj = 'testing mailtools package',
-                        extrahdrs = [('X-Mailer', 'mailtools')],
-                        bodytext = 'Here is my source code\n',
-                        attaches = ['selftest.py'],
-                        )
+    sender.sendMessage(From=mailconfig.myaddress,
+                       To=[mailconfig.myaddress],
+                       Subj='testing mailtools package',
+                       extrahdrs=[('X-Mailer', 'mailtools')],
+                       bodytext='Here is my source code\n',
+                       attaches=['selftest.py'],
+                       )
 
     # other tests to try
 
@@ -82,7 +81,8 @@ def parse():
     hdrs, sizes, loadedall = fetcher.downloadAllHeaders(status)
     # load recent 2 e-mails
     last2 = len(hdrs)-2
-    msgs, sizes, loadedall = fetcher.downloadAllMessages(status, loadfrom=last2)
+    msgs, sizes, loadedall = fetcher.downloadAllMessages(status,
+                                                         loadfrom=last2)
     for msg in msgs:
         print(msg[:200], '\n', '-'*70)
 
@@ -94,6 +94,7 @@ def parse():
         ctype, maintext = parser.findMainText(message)
         print('Parsed:', message['Subject'])
         print(maintext)
+
 
 if __name__ == '__main__':
     print('Start testing mailtools package')

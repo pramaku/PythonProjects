@@ -9,5 +9,5 @@ text = """Content-type: text/html
 <IMG src="../ppsmall.gif" BORDER=1 ALT=[image]>
 <HR>
 """
-#output will be sent t browser
+# output will be sent t browser
 print(text)
